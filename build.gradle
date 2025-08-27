@@ -1,0 +1,54 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+plugins {
+    id 'com.github.ben-manes.versions' version '0.52.0'
+    id 'groovy'
+}
+
+repositories {
+    mavenCentral()
+}
+
+def wayangVersion = '1.1.0'
+def hadoopVersion = '3.4.1'
+//def slf4jVersion = '2.0.16'
+//def djlVersion = '0.32.0'
+//def nd4jVersion= '1.0.0-M2.1'
+def groovyVersion = '5.0.0'
+//    scalaMajorVersion = '2.12'
+//    sparkVersion = '3.5.4'
+
+dependencies {
+    implementation "org.apache.groovy:groovy:$groovyVersion"
+//    implementation "org.apache.wayang:wayang-api-scala-java:$wayangVersion"
+    implementation "org.apache.wayang:wayang-java:$wayangVersion"
+    implementation "org.apache.wayang:wayang-tensorflow:$wayangVersion"
+//    runtimeOnly "org.slf4j:slf4j-simple:$slf4jVersion"
+    runtimeOnly 'org.apache.commons:commons-configuration2:2.10.1'
+    runtimeOnly 'com.fasterxml.woodstox:woodstox-core:6.6.2'
+    runtimeOnly 'com.google.re2j:re2j:1.7'
+//    runtimeOnly 'org.tensorflow:tensorflow-core-platform:0.5.0'
+//    runtimeOnly 'org.tensorflow:tensorflow-framework:1.0.0'
+    runtimeOnly 'org.tensorflow:tensorflow-core-native:1.0.0:macosx-arm64'
+    runtimeOnly("org.apache.hadoop:hadoop-common:$hadoopVersion") {
+        transitive = false
+    }
+    runtimeOnly("org.apache.hadoop:hadoop-hdfs:$hadoopVersion") {
+        transitive = false
+    }
+}
+
+sourceSets.main.allSource.files.each { file ->
+    def name = "${file.name - '.groovy'}"
+    tasks.register("run$name", JavaExec) {
+        dependsOn compileGroovy
+        group = 'Application'
+        standardInput = System.in
+        description = "Run $file.name as a JVM application/Groovy script"
+        classpath = sourceSets.main.runtimeClasspath
+        mainClass = name
+        // if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_11)) {
+        //     jvmArgs '--add-exports=java.base/sun.nio.ch=ALL-UNNAMED'
+        // }
+    }
+}
