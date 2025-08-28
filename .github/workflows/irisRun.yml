@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "Run H2 script"
+name: "Run Iris script"
 
 on:
   workflow_dispatch:
@@ -27,8 +27,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
         java: [17, 21, 24]
-    runs-on: ubuntu-latest
+        exclude:
+          - java: 17
+            os: [ubuntu-latest, macos-latest]
+          - java: 21
+            os: [windows-latest, ubuntu-latest]
+          - java: 24
+            os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
       - name: Set up JDK
