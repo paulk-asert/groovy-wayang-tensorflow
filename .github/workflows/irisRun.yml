@@ -31,9 +31,13 @@ jobs:
         java: [17, 21, 24]
         exclude:
           - java: 17
-            os: [ubuntu-latest, macos-latest]
+            os: ubuntu-latest
+          - java: 17
+            os: macos-latest
           - java: 21
-            os: [windows-latest, ubuntu-latest]
+            os: windows-latest
+          - java: 21
+            os: ubuntu-latest
           - java: 24
             os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
