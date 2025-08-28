@@ -47,21 +47,18 @@ def run() {
     Operator testData = testSource.field0
     Operator testLabel = testSource.field1
 
+    int[] noShape = null
+    var features = new Input(noShape, Input.Type.FEATURES)
+    var labels = new Input(noShape, Input.Type.LABEL, Op.DType.INT32)
+
     /* model */
     Op l1 = new Linear(4, 32, true)
-
-    def features = new Input(null, Input.Type.FEATURES)
-    def labels = new Input(null, Input.Type.LABEL, Op.DType.INT32)
-
     Op s1 = new Sigmoid().with(l1.with(features))
     Op l2 = new Linear(32, 3, true).with(s1)
     DLModel model = new DLModel(l2)
 
     /* training options */
-    Op criterion = new CrossEntropyLoss(3).with(
-        model.out,
-        labels
-    )
+    Op criterion = new CrossEntropyLoss(3).with(model.out, labels)
     Optimizer optimizer = new Adam(0.1f) // optimizer with learning rate
     int batchSize = 45
     int epoch = 10
@@ -75,7 +72,7 @@ def run() {
     var predictOp = new PredictOperator<>(float[], float[])
 
     /* map to label */
-    var bestFitOp = new MapOperator<>(array -> array.toList().indexed().max{ it.value }.key, float[], Integer)
+    var bestFitOp = new MapOperator<>(array -> array.indexed().max{ it.value }.key, float[], Integer)
 
     /* sink */
     var predicted = []
@@ -100,7 +97,7 @@ def run() {
         execute(wayangPlan)
     }
 
-    println "label:        $LABEL_MAP"
+    println "labels:       $LABEL_MAP"
     println "predicted:    $predicted"
     println "ground truth: $groundTruth"
 
